@@ -1,0 +1,75 @@
+COMP 2406 2024F Assignment 1
+Name: Gana said
+Student ID:101329317
+
+1. The server uses a folder called ./www to serve files.
+ I found this in the fileData() function, which combines "./www" with the requested file path.
+  To check this, I added some files to the www folder and tried opening them in a browser.
+ The server loaded them correctly, which confirmed it was using this folder.
+
+
+2. Yes, it can.
+ but you have to add the PDF type to the MIME_TYPES object.
+ I included this line in the MIMEtype() function under const MIMEType
+ // 'pdf': 'application/pdf', 
+ and then I created a new file as a pdf to the www folder to check if it accessed the right thing
+ to confirme that its working.
+  in this context "support" means that the server recognizes the pdf files and sends it with the correct content-type.
+
+
+3. when we make MIMEtype() an async function its no longer expecting a simple string.
+ instead it returns a Promise. This might creates a problem because the fileData() function 
+ expects MIMEtype() to return a string, not a Promise. As a result, the Content-Type
+is not  set properly, and the browser might not handle the files as expected.
+
+To check this I changed MIMEtype() to be async and got error(red line under the word async) because the content type wasn’t set.
+ To fix it I added await before calling MIMEtype() inside fileData()
+//contentType = await MIMEtype(path);
+ (GeeksforGeeks. (n.d.). Async/Await Function in JavaScript. Retrieved October 9, 2024, from https://www.geeksforgeeks.org/async-await-function-in-javascript/)
+
+4a. To make the server respond only to GET requests, i added a check at the very start of the handler() function
+to check all the request methods and if it’s anything other than GET it showes error "Method not implemented."
+ with status code of 501 
+ //if (req.method !== "GET") return new Response("Method not implemented.", { status: 501 });
+
+
+
+4b. i forgot to stop the function after sending the "Method not implemented" message
+so the server kept running.so to fix it i added statement to stop the function
+after sending the error message.
+I tested it by using the command line tool curl to send a POST/DELET request
+ which returned the correct message confirming a successful fix.
+
+5a. To load the "Page not found" from a file, i created a separate(index.html) file in the server's directory
+and then i  changed the code that serves files so if a requested file is missing,it reads the index.html file and sends its contents as the response.
+ so that the error message isn’t hardcoded anymore but loaded from a separate fille.
+ // contents = await Deno.readFile("./www/index.html");
+
+5b.  because the server now reads the index file from index.html if the requested file isn’t found. 
+5c. During testing, the server crashed a couple of times  when the server tried to load index.html and it wasn’t there.(it didn’t happen consistently(which was wierd))
+  the server was crashing, so I added some error handling to check if index.html was missing.
+   so that if the file is missing the server just shows a simple default message instead of
+    crushing to help me under stand what is going on.
+
+6a. i used a regular expression to get the path directly from the URL, so I didn’t need to convert the URL into an object
+   This way, I could get  the part after the hostname and avoid the protocol, hostname..ect.
+
+   I added this line where origpath is assigned(line 80):
+   //var origpath = req.url.match(/^https?:\/\/[^\/]+(\/.*)$/)[1];
+   (Friedl, J. (n.d.). *Regex101 - Regex syntax and examples*. Regex101. Retrieved October 9, 2024, from https://regex101.com/)
+
+
+6b.I used the Mozilla Developer Network (MDN) documentation on regular expressions in JavaScript.
+ This helped me understand how to extract only the pathname part of a URL.
+  I also referred to GeeksforGeeks to get a better idea of how async functions work, which gave me additional context for handling asynchronous operations.
+  and i used regex101 to explain how the expression work/use.
+  if it’s worth mentioning i used translateor and online web for citation as well.
+
+
+
+
+6c. i tested my work by trying different URLs on the server, like the root (/), specific files, and pages that don’t exist. 
+each one worked as expected, so i was able to confirm that the server was handling paths correctly.
+6d. At first, the regular expression didn’t work with certain URL formats.
+ i updated it to handle both http and https to work with paths that have or don’t have a leading /.
+ after that it worked.
